@@ -80,16 +80,24 @@ int main(int argc, char *argv[]) {
     randstate_init(timeSeed);
 
     // 5. rsa_make_pub() rsa_make_priv()
-    mpz_t p, q, n, e; // prime num: p, q; product of pq: n; public exponent: e
+    mpz_t p, q, n, e, d; // prime num: p, q; product of pq: n; public exponent: e
     mpz_inits(p, q, n, e, NULL);
     rsa_make_pub(p, q, n, e, nbits, iters);
-    //rsa_make_priv(d, e, p, q);
+    rsa_make_priv(d, e, p, q);
 
     // 6. getenv() get the current user’s name as a string
+    char *userName = getenv("USER");
+    printf("%s \n", userName);
 
     // 7. convert the username into an mpz_t with mpz_set_str(), specifying the base as 62. Then, use rsa_sign() to compute the signature of the username
+    mpz_t m, s;
+    mpz_inits(m, s, NULL);
+    mpz_set_str(m, userName, 62);
+    rsa_sign(s, m, d, n);
 
     // 8. write the computed public and private key to their respective files
+    rsa_write_pub(n, e, s, userName, pubKey);
+    rsa_write_priv(n, d, privKey);
 
     // 9. if -v print the following to stderr
     /*
@@ -101,12 +109,29 @@ int main(int argc, char *argv[]) {
         (f) the public exponent e \n
         (g) the private key d \n
     */
+    size_t numbits;
+    if (verbose == true) {
+        gmp_printf("user = %s\n", userName);
+        numbits = mpz_sizeinbase(s, 2); // we use this to get the bits
+        gmp_printf("s (%d bits) = %Zd\n", numbits, s);
+        numbits = mpz_sizeinbase(p, 2);
+        gmp_printf("p (%d bits) = %Zd\n", numbits, p);
+        numbits = mpz_sizeinbase(q, 2);
+        gmp_printf("q (%d bits) = %Zd\n", numbits, q);
+        numbits = mpz_sizeinbase(n, 2);
+        gmp_printf("n (%d bits) = %Zd\n", numbits, n);
+        numbits = mpz_sizeinbase(e, 2);
+        gmp_printf("e (%d bits) = %Zd\n", numbits, e);
+        numbits = mpz_sizeinbase(d, 2);
+        gmp_printf("d (%d bits) = %Zd\n", numbits, d);
+    }
 
     // 10. Close the public and private key files, randstate_clear(), and clear any mpz_t variables you may have used.
     fclose(pubKey);
     fclose(privKey);
     free(pubKeyFile);
     free(privKeyFile);
-
+    mpz_clears(p, q, n, e, d, m, s, NULL);
+    randstate_clear();
     return 0;
 }

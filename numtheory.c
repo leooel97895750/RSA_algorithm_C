@@ -4,7 +4,7 @@
 // 產生一個隨機大數，並檢查是不適質數，重複直到產生質數
 void make_prime(mpz_t p, uint64_t bits, uint64_t iters) {
     mpz_urandomb(p, state, bits); // 0 ~ (2^bits - 1)
-    gmp_printf ("%Zd\n", p);
+    // gmp_printf ("%Zd\n", p);
     while (!is_prime(p, iters)){
         mpz_urandomb(p, state, bits);
     }
@@ -62,7 +62,7 @@ bool is_prime(mpz_t p, uint64_t iters) {
     }
     mpz_clears(two, pSubOne, pSubThree, reminder, a, y, j, NULL);
     // print prime
-    gmp_printf ("%Zd\n", p);
+    // gmp_printf ("%Zd\n", p);
     return true;
 }
 
@@ -87,4 +87,69 @@ void pow_mod(mpz_t out, mpz_t base, mpz_t exponent, mpz_t modulus){
     mpz_set(out, o);
 
     mpz_clears(b, e, o, NULL);
+}
+
+// 找出最大公因數
+void gcd(mpz_t d, mpz_t a, mpz_t b) {
+    mpz_t tmp, tmp_a, tmp_b, aModb;
+    mpz_inits(tmp, tmp_a, tmp_b, aModb, NULL);
+    mpz_set(tmp_b, b);
+    mpz_set(tmp_a, a);
+
+    // gcd(a, b) => gcd (b, a%b)
+    while (mpz_cmp_ui(tmp_b, 0) != 0) {
+        mpz_set(tmp, tmp_b);
+        mpz_mod(aModb, tmp_a, tmp_b);
+        mpz_set(tmp_b, aModb);
+        mpz_set(tmp_a, tmp);
+    }
+    mpz_set(d, tmp_a);
+    mpz_clears(tmp, tmp_a, tmp_b, aModb, NULL);
+}
+
+void mod_inverse(mpz_t o, mpz_t a, mpz_t n) {
+
+    // init all the variable
+    mpz_t r, rsub, t, tsub, q, temp_r, temp_t;
+    mpz_inits(r, rsub, t, tsub, q, temp_r, temp_t, NULL); // you can inits all at once
+
+    // assigning to var
+    mpz_set(r, n); // r = n
+    mpz_set(rsub, a); // r' = a
+    mpz_set_ui(t, 0); // t = 0
+    mpz_set_ui(tsub, 1); // t' = 1
+
+    // while loop
+
+    while (mpz_cmp_ui(rsub, 0) != 0) {
+
+        // this is r and r'
+        mpz_fdiv_q(q, r, rsub); // q = (r/r')
+
+        // perform swapping (for r and r')
+
+        mpz_set(temp_r, r); // store r in temp var
+        mpz_set(r, rsub); // r <- r'
+        mpz_mul(rsub, q, rsub); // r' <- q*r'
+        mpz_sub(rsub, temp_r, rsub); // r' <- (r - q*r')
+
+        // perform swapping (for t and t')
+
+        mpz_set(temp_t, t); // store t in temp var
+        mpz_set(t, tsub); // t <- t'
+        mpz_mul(tsub, q, tsub); // t' <- q*t'
+        mpz_sub(tsub, temp_t, tsub); // t' <- (t - q*t')
+    }
+
+    if (mpz_cmp_ui(r, 1) > 0) { // if r > 1
+        mpz_set_ui(o, 0); // set i to 0
+        mpz_clears(r, rsub, t, tsub, q, temp_r, temp_t, NULL);
+        return;
+    }
+    if (mpz_cmp_ui(t, 0) < 0) {
+        mpz_add(t, t, n); // tadd = t + n
+    }
+    mpz_set(o, t); // set to outfile
+
+    mpz_clears(r, rsub, t, tsub, q, temp_r, temp_t, NULL); // free memory to prevent leak
 }

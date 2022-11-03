@@ -4,6 +4,11 @@
 
 int main() {
 
+    FILE *inputFile = stdin;
+    FILE *outputFile = stdout;
+    char *pubKeyFile = NULL; // NULL = rsa.pub
+    char verbose = 0;
+
     // 1. getopt() 接command line看要做什麼
     /*
         -i (default: stdin): specifies the input file to encrypt
@@ -12,6 +17,31 @@ int main() {
         -v : enables verbose output
         -h : displays program synopsis and usage
     */
+    int cmdOpt; // output of getopt
+    while ((cmdOpt = getopt(argc, argv, "i:o:n:vh")) != -1){
+        switch (cmdOpt) {
+            case 'i':
+                inputFile = fopen(optarg, "r");
+                break;
+            case 'o':
+                outputFile = fopen(optarg, "w");
+                break;
+            case 'n':
+                pubKeyFile = (char*) malloc((strlen(optarg) + 1) * sizeof(char));
+                strcpy(pubKeyFile, optarg);
+                break;
+            case 'v':
+                verbose = 1;
+                break;
+            case 'h':
+                // print help
+                return 0;
+                break;
+            case '?':
+                printf("Unknown option: %c\n", (char)optopt);
+                break;
+        }
+    }
 
     // 2. fopen() public key 記得例外處理
 

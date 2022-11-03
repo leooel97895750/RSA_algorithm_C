@@ -1,8 +1,12 @@
+
+#include <unistd.h>
+#include <string.h>
+
 #include "numtheory.h"
 #include "randstate.h"
 #include "rsa.h"
 
-int main() {
+int main(int argc, char *argv[]) {
 
     FILE *inputFile = stdin;
     FILE *outputFile = stdout;
@@ -44,8 +48,15 @@ int main() {
     }
 
     // 2. fopen() public key 記得例外處理
+    FILE *pubKey;
+    if (pubKeyFile == NULL) pubKey = fopen("rsa.pub", "r");
+    else pubKey = fopen(pubKeyFile, "r");
 
     // 3. read the key
+    mpz_t n, e, s;
+    mpz_inits(n ,e, s, NULL);
+    char userName[65536];
+    rsa_read_pub(n, e, s, userName, pubKey);
 
     // 4. if -v print the following to stderr
     /*
@@ -54,14 +65,40 @@ int main() {
         (c) the public modulus n \n
         (d) the public exponent e \n
     */
+    size_t numbits;
+    if (verbose == true) {
+        gmp_printf("user = %s\n", userName);
+        numbits = mpz_sizeinbase(s, 2); // we use this to get the bits
+        gmp_printf("s (%d bits) = %Zd\n", numbits, s);
+        numbits = mpz_sizeinbase(n, 2);
+        gmp_printf("n (%d bits) = %Zd\n", numbits, n);
+        numbits = mpz_sizeinbase(e, 2);
+        gmp_printf("e (%d bits) = %Zd\n", numbits, e);
+    }
 
-    // 5. convert the username that was read in to an mpz_t. This will be the expected value of the verified \
-          signature. Verify the signature using rsa_verify(), reporting an error and exiting the program if \
-          the signature couldn’t be verified
+    // 5. convert the username that was read in to an mpz_t. This will be the expected value of the verified
+    //    signature. Verify the signature using rsa_verify(), reporting an error and exiting the program if
+    //    the signature couldn’t be verified
+    mpz_t m;
+    mpz_inits(m, NULL);
+    mpz_set_str(m, userName, 62);
+    if (rsa_verify(m, s, e, n) == false) {
+        gmp_printf("invalid singature\n");
+        fclose(inputFile);
+        fclose(outputFile);
+        fclose(pubKey);
+        mpz_clears(n, e, s, NULL);
+        return 0;
+    }
 
     // 6. encrypt the file using rsa_encrypt_file()
+    rsa_encrypt_file(inputFile, outputFile, n, e);
+    fclose(inputFile);
+    fclose(outputFile);
+    fclose(pubKey);
 
     // 7. close the public key file and clear any mpz_t variables
+    mpz_clears(n, e, s, m, NULL);
 
     return 0;
 }

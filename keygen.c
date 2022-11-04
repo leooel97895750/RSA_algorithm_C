@@ -44,8 +44,8 @@ int main(int argc, char *argv[]) {
     case 'n':
       memset(pubKeyFile, '\0', 128);
       strcpy(pubKeyFile, optarg);
-      //pubKeyFile = (char *)malloc((strlen(optarg) + 1) * sizeof(char));
-      //strcpy(pubKeyFile, optarg);
+      // pubKeyFile = (char *)malloc((strlen(optarg) + 1) * sizeof(char));
+      // strcpy(pubKeyFile, optarg);
       break;
     case 'd':
       memset(privKeyFile, '\0', 128);

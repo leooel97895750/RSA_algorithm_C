@@ -71,7 +71,6 @@ void rsa_read_pub(mpz_t n, mpz_t e, mpz_t s, char username[], FILE *pbfile) {
   gmp_fscanf(pbfile, "%Zx\n%Zx\n%Zx\n%s\n", n, e, s, username);
 }
 
-
 bool rsa_verify(mpz_t m, mpz_t s, mpz_t e, mpz_t n) {
 
   mpz_t verifying;
@@ -81,13 +80,11 @@ bool rsa_verify(mpz_t m, mpz_t s, mpz_t e, mpz_t n) {
   if (mpz_cmp(verifying, m) == 0) {
     mpz_clear(verifying);
     return true;
-  } 
-  else {
+  } else {
     mpz_clear(verifying);
     return false;
   }
 }
-
 
 void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
 
@@ -114,21 +111,16 @@ void rsa_encrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t e) {
   free(block);
 }
 
-void rsa_encrypt(mpz_t c, mpz_t m, mpz_t e, mpz_t n) {
-  pow_mod(c, m, e, n);
-}
+void rsa_encrypt(mpz_t c, mpz_t m, mpz_t e, mpz_t n) { pow_mod(c, m, e, n); }
 
 void rsa_read_priv(mpz_t n, mpz_t d, FILE *pvfile) {
   gmp_fscanf(pvfile, "%Zx\n%Zx\n", n, d);
 }
 
-void rsa_decrypt(mpz_t m, mpz_t c, mpz_t d, mpz_t n) {
-  pow_mod(m, c, d, n);
-}
-
+void rsa_decrypt(mpz_t m, mpz_t c, mpz_t d, mpz_t n) { pow_mod(m, c, d, n); }
 
 void rsa_decrypt_file(FILE *infile, FILE *outfile, mpz_t n, mpz_t d) {
-  
+
   mpz_t c, m;
   mpz_inits(c, m, NULL);
   size_t k = (mpz_sizeinbase(n, 2) - 1) / 8;

@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
   size_t numbits;
   if (verbose == true) {
     gmp_printf("user = %s\n", userName);
-    numbits = mpz_sizeinbase(s, 2); // we use this to get the bits
+    numbits = mpz_sizeinbase(s, 2);
     gmp_printf("s (%d bits) = %Zd\n", numbits, s);
     numbits = mpz_sizeinbase(p, 2);
     gmp_printf("p (%d bits) = %Zd\n", numbits, p);

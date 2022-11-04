@@ -1,9 +1,9 @@
 #pragma once
 
+#include <gmp.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <gmp.h>
 
 void gcd(mpz_t d, mpz_t a, mpz_t b);
 

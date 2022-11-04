@@ -1,9 +1,9 @@
 #pragma once
 
+#include <gmp.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <gmp.h>
+
 #include <stdlib.h>
 #include <time.h>
 
@@ -20,7 +20,8 @@
 // n: will store the product of p and q.
 // e: will store the public exponent.
 //
-void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits, uint64_t iters);
+void rsa_make_pub(mpz_t p, mpz_t q, mpz_t n, mpz_t e, uint64_t nbits,
+                  uint64_t iters);
 
 //
 // Writes a public RSA key to a file.

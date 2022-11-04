@@ -1,13 +1,14 @@
 #pragma once
 
-#include <stdint.h>
 #include <gmp.h>
+#include <stdint.h>
 
 extern gmp_randstate_t state;
 
 //
 // Initializes the random state needed for RSA key generation operations.
-// Must be called before any key generation or number theory operations are used.
+// Must be called before any key generation or number theory operations are
+// used.
 //
 // seed: the seed to seed the random state with.
 //

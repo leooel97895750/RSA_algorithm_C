@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
 
   FILE *inputFile = stdin;
   FILE *outputFile = stdout;
-  char *privKeyFile = NULL; // NULL = rsa.priv
+  char privKeyFile[128] = "rsa.priv";
   char verbose = 0;
 
   // 1. getopt() 接command line看要做什麼
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
       outputFile = fopen(optarg, "w");
       break;
     case 'n':
-      privKeyFile = (char *)malloc((strlen(optarg) + 1) * sizeof(char));
+      memset(privKeyFile, '\0', 128);
       strcpy(privKeyFile, optarg);
       break;
     case 'v':
@@ -60,10 +60,7 @@ int main(int argc, char *argv[]) {
 
   // 2. fopen() private key 記得例外處理
   FILE *privKey;
-  if (privKeyFile == NULL)
-    privKey = fopen("rsa.priv", "r");
-  else
-    privKey = fopen(privKeyFile, "r");
+  privKey = fopen(privKeyFile, "r");
 
   // 3. read the key
   mpz_t n, d;

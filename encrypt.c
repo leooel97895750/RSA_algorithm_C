@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
   FILE *inputFile = stdin;
   FILE *outputFile = stdout;
-  char *pubKeyFile = NULL; // NULL = rsa.pub
+  char pubKeyFile[128] = "rsa.pub";
   char verbose = 0;
 
   // 1. getopt() 接command line看要做什麼
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
       outputFile = fopen(optarg, "w");
       break;
     case 'n':
-      pubKeyFile = (char *)malloc((strlen(optarg) + 1) * sizeof(char));
+      memset(pubKeyFile, '\0', 128);
       strcpy(pubKeyFile, optarg);
       break;
     case 'v':
@@ -61,10 +61,7 @@ int main(int argc, char *argv[]) {
 
   // 2. fopen() public key 記得例外處理
   FILE *pubKey;
-  if (pubKeyFile == NULL)
-    pubKey = fopen("rsa.pub", "r");
-  else
-    pubKey = fopen(pubKeyFile, "r");
+  pubKey = fopen(pubKeyFile, "r");
 
   // 3. read the key
   mpz_t n, e, s;

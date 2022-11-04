@@ -13,8 +13,8 @@ int main(int argc, char *argv[]) {
 
   uint64_t nbits = 1024;
   uint64_t iters = 50;
-  char *pubKeyFile = NULL;  // NULL = rsa.pub
-  char *privKeyFile = NULL; // NULL = rsa.priv
+  char pubKeyFile[128] = "rsa.pub";
+  char privKeyFile[128] = "rsa.priv";
   uint64_t timeSeed = time(NULL);
   char verbose = 0;
 
@@ -42,11 +42,13 @@ int main(int argc, char *argv[]) {
       iters = atoi(optarg);
       break;
     case 'n':
-      pubKeyFile = (char *)malloc((strlen(optarg) + 1) * sizeof(char));
+      memset(pubKeyFile, '\0', 128);
       strcpy(pubKeyFile, optarg);
+      //pubKeyFile = (char *)malloc((strlen(optarg) + 1) * sizeof(char));
+      //strcpy(pubKeyFile, optarg);
       break;
     case 'd':
-      privKeyFile = (char *)malloc((strlen(optarg) + 1) * sizeof(char));
+      memset(privKeyFile, '\0', 128);
       strcpy(privKeyFile, optarg);
       break;
     case 's':
@@ -90,14 +92,8 @@ int main(int argc, char *argv[]) {
 
   // 2. fopen() public or private key 記得例外處理
   FILE *pubKey, *privKey;
-  if (pubKeyFile == NULL)
-    pubKey = fopen("rsa.pub", "w");
-  else
-    pubKey = fopen(pubKeyFile, "w");
-  if (privKeyFile == NULL)
-    privKey = fopen("rsa.priv", "w");
-  else
-    privKey = fopen(privKeyFile, "w");
+  pubKey = fopen(pubKeyFile, "w");
+  privKey = fopen(privKeyFile, "w");
 
   // 3. fchmod() fileno() set to 0600 (read and write permissions for the user)
   fchmod(fileno(pubKey), 0600);
@@ -158,8 +154,6 @@ int main(int argc, char *argv[]) {
   // any mpz_t variables you may have used.
   fclose(pubKey);
   fclose(privKey);
-  free(pubKeyFile);
-  free(privKeyFile);
   mpz_clears(p, q, n, e, d, m, s, NULL);
   randstate_clear();
   return 0;
